@@ -520,6 +520,7 @@
   end_date: '2026-11-03'
   color: '#c1e1eb'
   source_url: https://www.miyoushe.com/ys/article/78782590
+  calibrated: B站总览
 - id: gi-卡池-2026-10-虚星临渡祈愿虚渊
   game: genshin-impact
   title: 「虚星临渡」祈愿：「虚渊暗星·丝柯克(冰)」概率UP
@@ -528,6 +529,7 @@
   end_date: '2026-11-03'
   color: '#c7cce5'
   source_url: https://www.miyoushe.com/ys/article/78782589
+  calibrated: B站总览
 - id: gi-常规-2026-10-判测胜券本征
   game: genshin-impact
   title: 「判测胜券本征」
