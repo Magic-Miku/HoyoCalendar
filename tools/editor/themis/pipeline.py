@@ -53,6 +53,8 @@ FALLBACK_COLOR = rules.FALLBACK_COLOR
 
 # 产物写在自己目录下，与运行时的 cwd 无关
 OUT_FILE = Path(__file__).resolve().parent / "extracted_tea.json"
+# 日志里报相对 tools/editor 的路径：四端同一形（绝对路径在日志里又长又只重复同一段前缀）
+OUT_LABEL = OUT_FILE.relative_to(Path(__file__).resolve().parent.parent).as_posix()
 
 # 交给 apply_events 的字段白名单。**没有** `keys.PENDING_FIELD`：未定不用 pending
 # （落不了的等下一篇，不落半条，裁定 10），也不需要 calibrate 补字段。
@@ -68,10 +70,12 @@ OUT_FIELDS = ("title", "type", "start_date", "end_date", "color", "tags", "post_
 # 「今天没有新活动」。日志里的这一行是分辨两者的第一依据。
 FETCH_STATS = {"ok": 0, "fail": 0, "risk": 0, "cache": 0, "skip": 0}
 
-# 本轮每篇帖子的判定（[{"subject", "verdict", "why", "type"}]）。dry-run 与日志都靠它，
-# 因为未定的漏斗是**按帖子**收敛的：50 篇 → 19 篇不进正文 → 19 条候选 → 去重后 18 条。
-# verdict 三态：候选 / 丢弃 / 跳过（跳过 = 已录入，帖子 id 命中，见 collect）。
-# 只报「本轮新增几条」看不出是哪一道闸起的作用。
+# 本轮每篇帖子的判定（[{"subject", "verdict", "why", "type"}]），**只给 `--dry-run` 打**：
+# 未定的漏斗是**按帖子**收敛的（50 篇 → 19 篇不进正文 → 19 条候选 → 去重后 18 条），
+# 只报「本轮新增几条」看不出是哪一道闸起的作用。正常日志与另外三端同形，只逐条报日期缺口。
+# verdict 四态：候选 / 丢弃（没进候选：正文抓不到、或解不出完整时段）/ 排除（判据一票否决
+# 的，语音电话与礼包复刻）/ 跳过（已录入，帖子 id 命中，见 collect）。**丢弃与排除必须分开**：
+# 正常日志的「跳过（日期不完整）」只报丢弃的那一类，另三端也从不报判据主动排除的东西。
 DECISIONS: list[dict] = []
 
 
@@ -142,7 +146,7 @@ def collect(news_posts: list[dict], version_posts: list[dict], body_of,
             # 「活动系列/礼包/上架」挡的（那是复刻二分那一支）
             why = ("语音电话（登录即领，不上日历）" if parse.is_voice_call(subject)
                    else "礼包复刻（活动系列/礼包，不上日历）")
-            _note(subject, "丢弃", why)
+            _note(subject, "排除", why)
             continue
         start, end = parse.parse_period(text)
         if not (start and end):
@@ -216,12 +220,17 @@ def run(dry_run: bool = False):
           + (f"（其中风控 1034: {FETCH_STATS['risk']}）" if FETCH_STATS["risk"] else "")
           + f" / 缓存命中 {FETCH_STATS['cache']} / 预筛跳过 {FETCH_STATS['skip']}")
 
-    print("== 判定 ==")
-    for d in DECISIONS:
-        tag = d["verdict"]
-        mark = "+" if tag == "候选" else ("·" if tag == "跳过" else " x")
-        print(f" {mark}", d["subject"][:44],
-              f"[{d['why']}]" if d["why"] else "")
+    # 日期缺口的最后一道闸：缺起止的帖子不进候选，逐条报出——**与另外三端同形**
+    # （`x <标题>`；另三端还会报 `? ~ ?`，未定的时段要么起止齐、要么整条丢，没有半条）。
+    # 取不到正文的也在这里：另三端正文抓失败同样是「没日期 → 报出」。判据主动排除的
+    # （语音电话 / 礼包复刻）与已录入的不在这里——后者已计入上面那行的「预筛跳过 N」，
+    # 另三端也从不报判据主动排除的东西。逐篇判定表见 --dry-run。
+    if not dry_run:
+        gaps = [d for d in DECISIONS if d["verdict"] == "丢弃"]
+        if gaps:
+            print("== 跳过（日期不完整）==")
+            for d in gaps:
+                print(" x", d["subject"])
 
     # 取色：只有版本更新是固定色（公告栏的帖子没有封面，见 rules.COLORS），
     # 其余一概按封面图取浅色 —— 版本大活动与大月卡也是（2026-09-25 裁定）。
@@ -232,17 +241,23 @@ def run(dry_run: bool = False):
         e["color"] = pastel_from_url(imgs[0]) if imgs else FALLBACK_COLOR
 
     if dry_run:
+        print("\n== 判定 ==")
+        for d in DECISIONS:
+            tag = d["verdict"]
+            mark = "+" if tag == "候选" else ("·" if tag == "跳过" else " x")
+            print(f" {mark}", d["subject"][:44],
+                  f"[{d['why']}]" if d["why"] else "")
         print("\n== dry-run：不落盘 ==")
         for e in all_events:
             print(f"  {e['type']:<6} {e['start_date']} ~ {e['end_date']}  "
                   f"{e['title']}  [{e.get('color')}]")
-        print(f"（共 {len(all_events)} 条，未写 {OUT_FILE.name}）")
+        print(f"（共 {len(all_events)} 条，未写 {OUT_LABEL}）")
         return all_events
 
     out = [{k: e[k] for k in OUT_FIELDS if k in e} for e in all_events]
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"written {len(out)} entries → {OUT_FILE}")
+    print(f"written {len(out)} entries → {OUT_LABEL}")
     return all_events
 
 

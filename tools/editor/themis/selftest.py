@@ -352,10 +352,20 @@ def test_collect():
     titles = [t for t, *_ in got]
     check("岁悦同欢合出两条", len([t for t in titles if "岁悦同欢" in t]), 2)
 
-    # 漏斗记账：候选 / 丢弃各自有据（日志与 dry-run 都靠 DECISIONS）
+    # 漏斗记账：候选 / 丢弃 / 排除各自有据（日志与 dry-run 都靠 DECISIONS）
     v = [d["verdict"] for d in pipeline.DECISIONS]
     check("判定表条数", len(v), 31)
-    check("丢弃条数", v.count("丢弃"), 12)   # 31 条过闸 - 19 条候选（其中 1 组被去重合并）
+    check("候选 + 丢弃 + 排除 == 过闸条数",
+          v.count("候选") + v.count("丢弃") + v.count("排除"), 31)
+    check("候选条数", v.count("候选"), 19)   # 19 条候选，其中 1 组被 _merge 并成 1 条（→ 18）
+    # 日志的「跳过（日期不完整）」只报「丢弃」那一类。判据主动排除的（语音电话 / 礼包复刻）
+    # 必须落在「排除」上，否则会混进日期缺口栏——另三端从不报判据主动排除的东西
+    check("排除的 why 必是那两条判据",
+          [d["why"] for d in pipeline.DECISIONS
+           if d["verdict"] == "排除" and "不上日历" not in d["why"]], [])
+    check("丢弃里没有判据排除的",
+          [d["why"] for d in pipeline.DECISIONS
+           if d["verdict"] == "丢弃" and "不上日历" in d["why"]], [])
 
     # 没有完整时段的一律不落盘 —— NXX-非常假日 这一期在窗口内没有任何带结束日的帖子
     check("无时段不落盘", [t for t, *_ in got if "非常假日" in t], [])

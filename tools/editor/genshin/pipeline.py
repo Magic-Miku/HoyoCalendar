@@ -40,6 +40,8 @@ GAME = "genshin-impact"
 
 # 产物写在自己目录下，与运行时的 cwd 无关
 OUT_FILE = Path(__file__).resolve().parent / "extracted_full.json"
+# 日志里报相对 tools/editor 的路径：四端同一形（绝对路径在日志里又长又只重复同一段前缀）
+OUT_LABEL = OUT_FILE.relative_to(Path(__file__).resolve().parent.parent).as_posix()
 
 
 def _build_sources(merged, banners, dyn, posts):
@@ -283,7 +285,7 @@ def run():
     ]
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"written {len(out)} entries → {OUT_FILE.name}")
+    print(f"written {len(out)} entries → {OUT_LABEL}")
 
 
 if __name__ == "__main__":

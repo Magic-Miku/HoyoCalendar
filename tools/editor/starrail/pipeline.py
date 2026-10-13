@@ -51,6 +51,8 @@ FALLBACK_COLOR = rules.FALLBACK_COLOR
 
 # 产物写在自己目录下，与运行时的 cwd 无关
 OUT_FILE = Path(__file__).resolve().parent / "extracted_hsr.json"
+# 日志里报相对 tools/editor 的路径：四端同一形（绝对路径在日志里又长又只重复同一段前缀）
+OUT_LABEL = OUT_FILE.relative_to(Path(__file__).resolve().parent.parent).as_posix()
 
 # 交给 apply_events 的字段白名单。`keys.PENDING_FIELD` **必须**在里面：apply_events 靠它把
 # 「这条还缺公告才有的字段」写进数据文件，下一轮才据此必抓它的公告正文（keys.likely_recorded）
@@ -542,7 +544,7 @@ def run():
     out = [{k: e[k] for k in OUT_FIELDS if k in e} for e in all_events]
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"written {len(out)} entries → {OUT_FILE}")
+    print(f"written {len(out)} entries → {OUT_LABEL}")
 
 
 def main():
