@@ -296,3 +296,25 @@
   end_date: '2026-11-18'
   color: '#b9e6f2'
   source_url: https://www.miyoushe.com/wd/article/78858602
+- id: tea-常规-2026-10-遇夏恋花
+  game: tears-of-themis
+  title: 「遇夏恋花」
+  type: 常规活动
+  start_date: '2026-10-18'
+  end_date: '2026-10-24'
+  color: '#e0d2cc'
+  source_url: https://www.miyoushe.com/wd/article/78918179
+  tags:
+  - 夏彦
+  - MR
+- id: tea-卡池-2026-10-莫弈岁月同鞍限时
+  game: tears-of-themis
+  title: 莫弈SSR【岁月同鞍】限时复刻
+  type: 卡池
+  start_date: '2026-10-16'
+  end_date: '2026-10-30'
+  color: '#bedded'
+  source_url: https://www.miyoushe.com/wd/article/78917032
+  tags:
+  - 莫弈
+  - SSR
