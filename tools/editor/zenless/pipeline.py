@@ -147,7 +147,24 @@ def _collect_versions(posts):
         contents[notes["version"]] = content
         if current is None:          # 列表按时间倒序，第一条即当前版本
             current = notes
+    _add_next_version(versions, current)
     return versions, current, contents
+
+
+def _add_next_version(versions: dict, notes: dict | None) -> None:
+    """把「下个版本」预置进版本表：起 = 总纲明写的下个版本日，止不知道（留 None）。
+
+    新版本的卡池/活动公告常在新版本开服前两三天就发，正文写「X.Y版本更新后 ~ 绝对日期」。
+    表里没有这一版就只能解出半段：`_banner_entry` 遇到不完整的时段返回空，卡池那条连
+    日志都不留一行。下个版本的**日期**是总纲明写的（「X.Y版本结束时间为 …」），只有
+    **号**是 +0.1 预测（见 _next_version_number）——号猜错时公告文本里的号对不上，最多
+    和以前一样解析不出，不会写出一条日期错的条目。止留 None：相对终点「X.Y版本结束」
+    仍要等它自己的总纲。
+    """
+    nxt = _next_version_number((notes or {}).get("version"))
+    nxt_date = (notes or {}).get("next_version_date")
+    if nxt and nxt_date:
+        versions.setdefault(nxt, (nxt_date, None))
 
 
 def _activities_from_notes(contents, versions):
@@ -171,8 +188,9 @@ def _activities_from_notes(contents, versions):
 
 def _next_version_number(ver: str) -> str | None:
     """3.2 → 3.3。总纲写明了「下个版本的日期」（「X.Y版本结束时间为 …」）却不写它的号，
-    只有这一处要用，是个朴素 +0.1 预测。跨大版本（3.9→4.0）会猜错：猜错时 keys 的同类型
-    7 天兜底仍认得出是同一条、不至插重复，但条目上的版本号与「待确认版本」标记要人工改。
+    是个朴素 +0.1 预测：版本更新条目与版本表（_add_next_version）两处共用。跨大版本
+    （3.9→4.0）会猜错：猜错时 keys 的同类型 7 天兜底仍认得出是同一条、不至插重复，
+    但条目上的版本号与「待确认版本」标记要人工改。
     """
     try:
         major, minor = ver.split(".")
@@ -343,7 +361,8 @@ def run():
     # ① 停服更新公告：当前版本 + 窗口内旧版本（活动日期要按版本号查表）
     versions, notes, contents = _collect_versions(posts)
     for ver, (start, end) in versions.items():
-        print(f"== 版本期间 == {ver}  {start} ~ {end}")
+        # 下个版本只有起点（总纲明写的更新日），终点要等它自己的总纲
+        print(f"== 版本期间 == {ver}  {start} ~ {end or '?'}")
     if notes:
         print(f"== 停服更新公告 == {notes['version']}版本「{notes.get('name') or '?'}」"
               f" 更新日 {notes.get('start_date')}"

@@ -42,12 +42,15 @@ def check(label: str, got, want):
 
 
 def _versions() -> dict:
-    """窗口里两份总纲给出的版本期间表。"""
+    """窗口里两份总纲给出的版本期间表（与管线同形：下个版本由 _add_next_version 预置）。"""
     out = {}
+    latest = None
     for name in ("zzz31_version_notes", "zzz32_version_notes"):
         d = load(name)
         notes = parse.parse_version_notes(d["text"], d["subject"])
         out[notes["version"]] = parse.version_period(notes)
+        latest = notes
+    pipeline._add_next_version(out, latest)
     return out
 
 
@@ -84,6 +87,22 @@ def test_version_notes():
     check("排除预下载通知",
           parse.is_version_notes("3.2版本「她与她的隐秘往事」预下载开启&更新通知"), False)
 
+    # 下个版本预置进版本表：起 = 总纲明写的下个版本日，止未知。新版本的卡池公告在开服前
+    # 两三天就发（正文写「3.3版本更新后」），没有这一行会被 _banner_entry 整条丢掉。
+    v = _versions()
+    check("版本表预置下个版本", v.get("3.3"), ("2026-10-21", None))
+    check("下个版本的起点可解", parse.resolve_period("3.3版本更新后 ~ 2026/11/11 11:59", v),
+          ("2026-10-21", "2026-11-11"))
+    # 终点仍要等它自己的总纲：相对终点只能给 None，不许按 42 天推
+    check("下个版本的终点仍未知", parse.resolve_period("2026/10/21 ~ 3.3版本结束", v)[1], None)
+    # 表里已有的版本不被覆盖；总纲没有下个版本日时什么都不加
+    v2 = _versions()
+    pipeline._add_next_version(v2, {"version": "3.1", "next_version_date": "2026-09-09"})
+    check("不覆盖已有版本", v2["3.2"], ("2026-09-09", "2026-10-20"))
+    v3 = {}
+    pipeline._add_next_version(v3, {"version": "3.2"})
+    check("没有下个版本日就不加", v3, {})
+
 
 # ─── 卡池：标题必须与数据文件逐字一致 ─────────────────────
 
@@ -97,6 +116,8 @@ def test_banners():
         ("zzz31_banner_2", [("调频活动-希格莉德/琉音/浮波柚叶/浅羽悠真",
                              "2026-08-19", "2026-09-08")]),
         ("zzz32_banner_1", [("调频活动-克拉蕾/南宫羽", "2026-09-09", "2026-09-30")]),
+        # 3.3 上半：公告在开服前两天（10-19）就发了，起点靠版本表预置的下个版本日
+        ("zzz33_banner_1", [("调频活动-菲欧妮/维琳娜", "2026-10-21", "2026-11-11")]),
     ]
     for name, want in cases:
         d = load(name)
