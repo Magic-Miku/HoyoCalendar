@@ -318,3 +318,13 @@
   tags:
   - 莫弈
   - SSR
+- id: tea-常规-2026-10-思迹回音
+  game: tears-of-themis
+  title: 「思迹回音」
+  type: 常规活动
+  start_date: '2026-10-18'
+  end_date: '2026-11-11'
+  color: '#ccd5df'
+  source_url: https://www.miyoushe.com/wd/article/78937630
+  tags:
+  - MR

@@ -413,3 +413,11 @@
   end_date: '2026-10-21'
   color: '#ffffff'
   calibrated: B站前瞻公告
+- id: zzz-卡池-2026-10-调频活动菲欧妮维
+  game: zenless-zone-zero
+  title: 调频活动-菲欧妮/维琳娜
+  type: 卡池
+  start_date: '2026-10-21'
+  end_date: '2026-11-11'
+  color: '#f2c4b9'
+  source_url: https://www.miyoushe.com/zzz/article/79004828

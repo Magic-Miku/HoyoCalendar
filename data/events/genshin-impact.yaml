@@ -538,3 +538,28 @@
   end_date: '2026-10-23'
   color: '#e7cdc5'
   source_url: https://www.miyoushe.com/ys/article/78817337
+- id: gi-深境螺旋-深境螺旋1116
+  game: genshin-impact
+  title: 深境螺旋1116
+  type: 高难挑战
+  start_date: '2026-11-16'
+  end_date: '2026-12-15'
+  color: '#8779d2'
+  tags:
+  - 自动推理
+- id: gi-常规-2026-10-无忧无虑大雪仗
+  game: genshin-impact
+  title: 「无忧无虑大雪仗」
+  type: 常规活动
+  start_date: '2026-10-21'
+  end_date: '2026-11-01'
+  color: '#b9dbf2'
+  source_url: https://www.miyoushe.com/ys/article/79002868
+- id: gi-常规-2026-10-游赏耀星畅怀
+  game: genshin-impact
+  title: 「游赏耀星·畅怀」
+  type: 常规活动
+  start_date: '2026-10-19'
+  end_date: '2026-11-01'
+  color: '#b9bdf2'
+  source_url: https://www.miyoushe.com/ys/article/78982011
