@@ -421,3 +421,27 @@
   end_date: '2026-11-11'
   color: '#f2c4b9'
   source_url: https://www.miyoushe.com/zzz/article/79004828
+- id: zzz-常规-2026-10-怪奇诡屋惊魂记
+  game: zenless-zone-zero
+  title: 「怪奇诡屋惊魂记」
+  type: 常规活动
+  start_date: '2026-10-22'
+  end_date: '2026-11-29'
+  color: '#ebd3c0'
+  source_url: https://www.miyoushe.com/zzz/article/79024238
+- id: zzz-登录-2026-10-全新放送
+  game: zenless-zone-zero
+  title: 「全新放送」
+  type: 登录福利
+  start_date: '2026-10-21'
+  end_date: '2026-11-30'
+  color: '#e8ddc3'
+  source_url: https://www.miyoushe.com/zzz/article/79024037
+- id: zzz-大月-2026-10-33版本丽都城募
+  game: zenless-zone-zero
+  title: 3.3版本「丽都城募」
+  type: 大月卡
+  start_date: '2026-10-21'
+  end_date: '2026-11-29'
+  color: '#d9c9a8'
+  source_url: https://www.miyoushe.com/zzz/article/79023864

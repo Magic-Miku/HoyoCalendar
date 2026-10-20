@@ -335,8 +335,7 @@
   type: 常规活动
   start_date: '2026-10-21'
   end_date: '2026-11-10'
-  color: '#cce0f0'
-  pending: 总纲
+  color: '#e2d9ca'
 - id: hsr-卡池-2026-09-真珠欢愉冰跃迁
   game: honkai-star-rail
   title: 「真珠（欢愉•冰）」跃迁
@@ -361,3 +360,11 @@
   end_date: '2026-10-24'
   color: '#bcc8ef'
   source_url: https://www.miyoushe.com/sr/article/78837137
+- id: hsr-卡池-2026-10-千冶刃虚无火跃迁
+  game: honkai-star-rail
+  title: 「千冶•刃（虚无•火）」跃迁
+  type: 卡池
+  start_date: '2026-10-21'
+  end_date: '2026-11-10'
+  color: '#c6e5e5'
+  source_url: https://www.miyoushe.com/sr/article/79023863
