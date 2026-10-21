@@ -445,3 +445,114 @@
   end_date: '2026-11-29'
   color: '#d9c9a8'
   source_url: https://www.miyoushe.com/zzz/article/79023864
+- id: zzz-高难-2026-10-危局强袭战102
+  game: zenless-zone-zero
+  title: 危局强袭战1023
+  type: 高难挑战
+  start_date: '2026-10-23'
+  end_date: '2026-11-05'
+  color: '#f5a3a3'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-高难-2026-11-危局强袭战110
+  game: zenless-zone-zero
+  title: 危局强袭战1106
+  type: 高难挑战
+  start_date: '2026-11-06'
+  end_date: '2026-11-19'
+  color: '#f5a3a3'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-高难-2026-11-危局强袭战112
+  game: zenless-zone-zero
+  title: 危局强袭战1120
+  type: 高难挑战
+  start_date: '2026-11-20'
+  end_date: '2026-12-03'
+  color: '#f5a3a3'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-高难-2026-10-式舆防卫战103
+  game: zenless-zone-zero
+  title: 式舆防卫战1030
+  type: 高难挑战
+  start_date: '2026-10-30'
+  end_date: '2026-11-12'
+  color: '#a0b9f8'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-高难-2026-11-式舆防卫战111
+  game: zenless-zone-zero
+  title: 式舆防卫战1113
+  type: 高难挑战
+  start_date: '2026-11-13'
+  end_date: '2026-11-26'
+  color: '#a0b9f8'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-高难-2026-11-式舆防卫战112
+  game: zenless-zone-zero
+  title: 式舆防卫战1127
+  type: 高难挑战
+  start_date: '2026-11-27'
+  end_date: '2026-12-10'
+  color: '#a0b9f8'
+  source_url: https://www.miyoushe.com/zzz/article/79036482
+  calibrated: 总纲期数 + 高难期次网格
+- id: zzz-常规-2026-10-赛博圣手出诊
+  game: zenless-zone-zero
+  title: 「赛博圣手，出诊!」
+  type: 常规活动
+  start_date: '2026-10-28'
+  end_date: '2026-11-15'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-常规-2026-11-先遣赏金区域巡防
+  game: zenless-zone-zero
+  title: 「先遣赏金-区域巡防」
+  type: 常规活动
+  start_date: '2026-11-04'
+  end_date: '2026-11-08'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-常规-2026-11-嗯呢从天降
+  game: zenless-zone-zero
+  title: 「『嗯呢』从天降」
+  type: 常规活动
+  start_date: '2026-11-11'
+  end_date: '2026-11-30'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-常规-2026-11-跛脚乌鸦奇踪记
+  game: zenless-zone-zero
+  title: 「跛脚乌鸦奇踪记」
+  type: 常规活动
+  start_date: '2026-11-11'
+  end_date: '2026-11-29'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-常规-2026-11-修复吧漂流画集
+  game: zenless-zone-zero
+  title: 「修复吧！漂流画集」
+  type: 常规活动
+  start_date: '2026-11-16'
+  end_date: '2026-11-29'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-常规-2026-11-数据悬赏实战模拟
+  game: zenless-zone-zero
+  title: 「数据悬赏-实战模拟」
+  type: 常规活动
+  start_date: '2026-11-25'
+  end_date: '2026-11-29'
+  color: '#cce0f0'
+  pending: 总纲
+- id: zzz-版本-2026-12-绝区零34版本停
+  game: zenless-zone-zero
+  title: 《绝区零》3.4 版本停服更新
+  type: 版本更新
+  start_date: '2026-12-02'
+  end_date: '2026-12-02'
+  color: '#ffffff'
+  tags:
+  - 待确认版本

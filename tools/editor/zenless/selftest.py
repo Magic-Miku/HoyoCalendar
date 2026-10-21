@@ -78,6 +78,19 @@ def test_version_notes():
     # 期数从正文数出来（3.2 的危局写成「第一期试炼/第一期绝境」，要先去重）
     check("3.2 高难期数", n32["endgame_counts"], {"危局强袭战": 3, "式舆防卫战": 3})
 
+    # 3.3 总纲把那句话拆在 <strong> 上，压平成文本后是「结束时间 为」，
+    # fixture 保留原样——这条断言守着 fixture 不被「清理」成连续写法。
+    d33 = load("zzz33_version_notes")
+    check("3.3 总纲含跨标签空白", "版本结束时间 为2026/12/02" in d33["text"], True)
+    n33 = parse.parse_version_notes(d33["text"], d33["subject"])
+    check("3.3 版本号", n33["version"], "3.3")
+    check("3.3 版本名", n33["name"], "重返天空的旅程")
+    check("3.3 更新日", n33["start_date"], "2026-10-21")
+    check("3.3 下个版本日（空白两侧）", n33["next_version_date"], "2026-12-02")
+    check("3.3 版本终点", parse.version_period(n33)[1], "2026-12-01")
+    check("3.3 持续天数", n33["period_days"], 42)
+    check("3.3 高难期数", n33["endgame_counts"], {"危局强袭战": 3, "式舆防卫战": 3})
+
     # 两版首尾相接：3.1 的终点 09-08 与 3.2 的更新日 09-09 相邻，各 42 天
     check("版本相接 3.1终点/3.2更新日",
           (parse.version_period(n31)[1], n32["start_date"]), ("2026-09-08", "2026-09-09"))
@@ -425,11 +438,13 @@ def test_notes_activities_match_data():
     一旦有冲突，说明总纲写的不是活动时间（或解析串了段），那时先落盘就会落错日期。
     """
     v = _versions()
-    existing = {e.get("title"): e for e in yaml_io.load_events(rules.GAME)}
+    # 键取「标题 + 开始日期」，与落盘去重同口径：同名活动可以跨版本再来一期
+    # （「全新放送」3.2/3.3 各一条），只用标题会互相覆盖、比对到错的那条。
+    existing = {(e.get("title"), e.get("start_date")): e for e in yaml_io.load_events(rules.GAME)}
     compared: list[str] = []
     for name in ("zzz31_version_notes", "zzz32_version_notes"):
         for a in parse.parse_version_activities(load(name)["content"], v):
-            e = existing.get(a["title"])
+            e = existing.get((a["title"], a["start_date"]))
             if not e:
                 continue          # 还没落盘的（正是 §9 要提前收进来的那批）
             compared.append(a["title"])
