@@ -328,3 +328,24 @@
   source_url: https://www.miyoushe.com/wd/article/78937630
   tags:
   - MR
+- id: tea-常规-2026-10-旧梦今情左然篇
+  game: tears-of-themis
+  title: 「旧梦今情·左然篇」
+  type: 常规活动
+  start_date: '2026-10-22'
+  end_date: '2026-10-28'
+  color: '#f2cfb9'
+  source_url: https://www.miyoushe.com/wd/article/79040308
+  tags:
+  - 左然
+- id: tea-卡池-2026-10-左然予光
+  game: tears-of-themis
+  title: 左然SSR【予光】
+  type: 卡池
+  start_date: '2026-10-22'
+  end_date: '2026-10-28'
+  color: '#c3dde9'
+  source_url: https://www.miyoushe.com/wd/article/79039752
+  tags:
+  - 左然
+  - SSR
