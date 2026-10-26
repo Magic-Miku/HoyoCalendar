@@ -563,3 +563,11 @@
   end_date: '2026-11-01'
   color: '#b9bdf2'
   source_url: https://www.miyoushe.com/ys/article/78982011
+- id: gi-常规-2026-10-祝圣移涌
+  game: genshin-impact
+  title: 「祝圣移涌」
+  type: 常规活动
+  start_date: '2026-10-26'
+  end_date: '2026-11-01'
+  color: '#bfdaed'
+  source_url: https://www.miyoushe.com/ys/article/79098964

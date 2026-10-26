@@ -349,3 +349,21 @@
   tags:
   - 左然
   - SSR
+- id: tea-常规-2026-10-一触牵心
+  game: tears-of-themis
+  title: 「一触牵心」
+  type: 常规活动
+  start_date: '2026-10-27'
+  end_date: '2026-11-02'
+  color: '#b9dbf2'
+  source_url: https://www.miyoushe.com/wd/article/79140558
+  tags:
+  - MR
+- id: tea-常规-2026-10-蜜语特调
+  game: tears-of-themis
+  title: 「蜜语特调」
+  type: 常规活动
+  start_date: '2026-10-27'
+  end_date: '2026-11-05'
+  color: '#e4d4c7'
+  source_url: https://www.miyoushe.com/wd/article/79140251
