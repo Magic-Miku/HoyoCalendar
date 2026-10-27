@@ -494,6 +494,44 @@ def fetch_post_list(game_id: str = "genshin-impact", page_size: int = 10,
         return []
 
 
+def fetch_home_posts(game_id: str = "honkai-star-rail", uid: int = 53,
+                     page_size: int = 50, home_type: int = 2) -> list[dict]:
+    """获取米游社官方账号主页（`home/<uid>?type=2`）的帖子列表。
+
+    官方账号会在主页发「【转发抽奖】X.Y「版本名」前瞻特别节目预告」，正文写明直播日期；
+    这类帖子不一定同步到 B站（2026-10-27 实测 4.7：B站只有「敬请关注4.7版本前瞻直播」，
+    没有日期）。`uid` 是主页地址里的号（星铁是 53），**不是**账号 uid。
+    返回 [{post_id, subject, created_at}]。
+    """
+    gids = GIDS_MAP.get(game_id, 2)
+    url = "https://bbs-api-static.miyoushe.com/apihub/wapi/webHome"
+    params = {"client_type": "4", "gids": str(gids), "uid": str(uid),
+              "type": str(home_type), "page_size": str(page_size)}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/99.0.4844.84 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://www.miyoushe.com/",
+        "x-rpc-client_type": "4",
+        "x-rpc-app_version": "2.102.0",
+    }
+    try:
+        r = requests.get(url, params=params, headers=headers, timeout=10)
+        data = r.json()
+        if data.get("retcode") != 0:
+            return []
+        posts = []
+        for item in (data.get("data") or {}).get("recommended_posts") or []:
+            post = item.get("post") or {}
+            posts.append({
+                "post_id": str(post.get("post_id", "")),
+                "subject": post.get("subject", ""),
+                "created_at": post.get("created_at", 0),
+            })
+        return posts
+    except Exception:
+        return []
+
+
 # ─── 提取引擎 ────────────────────────────────────────────
 
 def extract(text: str, game_id: str = "genshin-impact") -> dict:

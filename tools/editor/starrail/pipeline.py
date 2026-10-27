@@ -43,7 +43,7 @@ except OSError:
 
 from common import bilibili, body_cache, calibrate, keys, yaml_io
 from common.colors import pastel_from_url
-from common.extractor import fetch_post, fetch_post_list
+from common.extractor import fetch_home_posts, fetch_post, fetch_post_list
 from starrail import parse, rules
 
 GAME = rules.GAME
@@ -248,6 +248,26 @@ def _build_livestreams(lives) -> list[dict]:
              "type": "前瞻直播", "start_date": l["date"], "end_date": l["date"],
              "color": rules.COLORS["前瞻直播"]}
             for l in lives]
+
+
+def _official_livestreams() -> list[dict]:
+    """米游社官方账号主页的前瞻预告（转发抽奖帖）→ [{version, name, date, source}]。
+
+    B站这一路在 4.7 只发了「敬请关注4.7版本前瞻直播」，没有日期；官方账号主页的预告
+    帖写着直播日，两条路都用同一个标题模板，命中后按版本号去重（B站的优先）。
+    """
+    out = []
+    for p in fetch_home_posts(GAME, rules.MIYOUSHE_HOME_UID):
+        if not parse.is_livestream_notice(p.get("subject", "")):
+            continue
+        text, _ = _fetch_text(p["post_id"])
+        if text is None:
+            continue
+        r = parse.parse_livestream_notice(p["subject"], text)
+        if r:
+            r["source"] = "米游社官方账号"
+            out.append(r)
+    return out
 
 
 # ─── 高难 ────────────────────────────────────────────────
@@ -471,9 +491,11 @@ def run():
         print(f"== 更新预告 == {preview['version']}版本「{preview['name']}」"
               f" → {preview['date']}")
 
-    # ③ B站动态：前瞻直播 + 版本上线
+    # ③ B站动态：前瞻直播 + 版本上线；B站没给日期时用官方账号主页的预告帖补
     dyn = bilibili.fetch_dynamics(rules.BILI_UID, limit=rules.DYN_LIMIT)
     lives = parse.find_livestreams(dyn)
+    known = {l["version"] for l in lives}
+    lives += [l for l in _official_livestreams() if l["version"] not in known]
     launches = parse.find_launches(dyn)
 
     # ④ 版本周期表：由**已确认的版本更新条目**推（数据文件 + 本轮候选，见 _version_table）。
