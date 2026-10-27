@@ -529,6 +529,19 @@ def test_bilibili():
           [("4.6", "月升之前，与兽共舞", "2026-09-20")])
 
 
+def test_official_livestream():
+    """B站 4.7 只发了「敬请关注4.7版本前瞻直播」，没有日期；官方账号主页的转发抽奖
+    预告帖给版本号、版本名与直播日，这一路补的就是它。"""
+    d = load("hsr47_livestream_notice")
+    check("官方号前瞻预告识别", parse.is_livestream_notice(d["subject"]), True)
+    check("官方号前瞻预告解析", parse.parse_livestream_notice(d["subject"], d["text"]),
+          {"version": "4.7", "name": "此刻，将群星付之一笑", "date": "2026-10-30"})
+    check("官方号预告条目标题",
+          pipeline._build_livestreams([parse.parse_livestream_notice(d["subject"], d["text"])])[0]["title"],
+          "《崩坏：星穹铁道》4.7 版本「此刻，将群星付之一笑」前瞻特别节目")
+    check("不带「前瞻特别节目预告」的标题不认", parse.is_livestream_notice("「乐子神智取米哈游」第六话"), False)
+
+
 # ─── 公告分类 ────────────────────────────────────────────
 
 def test_classification():
@@ -632,8 +645,8 @@ def main():
                test_pending_correction, test_body_cache_and_audit,
                test_activity_audit_waiting, test_permanent_drop, test_banners,
                test_activity_bodies,
-               test_update_preview, test_bilibili, test_classification,
-               test_matches_existing):
+               test_update_preview, test_bilibili, test_official_livestream,
+               test_classification, test_matches_existing):
         fn()
 
     if _FAILS:

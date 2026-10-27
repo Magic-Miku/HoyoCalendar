@@ -563,3 +563,20 @@
   end_date: '2026-11-01'
   color: '#b9bdf2'
   source_url: https://www.miyoushe.com/ys/article/78982011
+- id: gi-常规-2026-10-祝圣移涌
+  game: genshin-impact
+  title: 「祝圣移涌」
+  type: 常规活动
+  start_date: '2026-10-26'
+  end_date: '2026-11-01'
+  color: '#bfdaed'
+  source_url: https://www.miyoushe.com/ys/article/79098964
+- id: gi-卡池-2026-10-神铸赋形单手剑苍
+  game: genshin-impact
+  title: 「神铸赋形」：「单手剑·苍耀」「长柄武器·香韵奏者」概率UP
+  type: 卡池
+  start_date: '2026-10-13'
+  end_date: '2026-11-03'
+  color: '#ebd2c0'
+  source_url: https://www.miyoushe.com/ys/article/78782593
+  calibrated: B站总览

@@ -10,6 +10,9 @@ from common.keys import TAG_PENDING_VERSION  # noqa: F401  （再导出，值只
 
 GAME = "honkai-star-rail"
 BILI_UID = 1340190821        # 崩坏：星穹铁道官方账号
+# 米游社官方账号主页（`https://www.miyoushe.com/sr/home/53?type=2`）里的主页号。
+# 前瞻特别节目的「转发抽奖」预告只发在这里，B站不一定带日期（2026-10-27 实测 4.7）。
+MIYOUSHE_HOME_UID = 53
 
 # 比原神的 30 宽：版本更新说明是每版本的「总纲」（下版本日期 + 高难期名日期都在里面），
 # 必须保证它留在窗口内。实测 4.4 的说明已排到第 44 条（page_size=30 会漏掉）。

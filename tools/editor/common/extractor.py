@@ -210,11 +210,16 @@ def find_banner_announcements(posts: list[dict]) -> list[dict]:
     完整包含卡池名与 5 星全名（带属性），去尾部感叹号后直接作为标题。
     created_at 用于按版本节奏推断卡池阶段（上半/下半，见 inference.infer_banner_dates）。
     排除溯光祈愿 / 集录祈愿等特殊祈愿。
+
+    常规武器池固定叫「神铸赋形」，它是 `祈愿` 之外的第二个信号：7.1 下半起武器池标题
+    写成 `「神铸赋形」：「单手剑·苍耀」「长柄武器·香韵奏者」概率UP`，省掉了 `祈愿`
+    （2026-10-27 实测：只认 `祈愿` 会整条静默漏录）。
     """
     out = []
     for p in posts:
         s = p.get("subject", "")
-        if "祈愿" in s and "概率" in s and "溯光祈愿" not in s and "集录祈愿" not in s:
+        if "概率" in s and ("祈愿" in s or "神铸赋形" in s) \
+                and "溯光祈愿" not in s and "集录祈愿" not in s:
             out.append({
                 "title": s.rstrip("！!。"),
                 "created_at": p.get("created_at", 0),
@@ -479,6 +484,44 @@ def fetch_post_list(game_id: str = "genshin-impact", page_size: int = 10,
         posts = []
         for item in data["data"]["list"]:
             post = item["post"]
+            posts.append({
+                "post_id": str(post.get("post_id", "")),
+                "subject": post.get("subject", ""),
+                "created_at": post.get("created_at", 0),
+            })
+        return posts
+    except Exception:
+        return []
+
+
+def fetch_home_posts(game_id: str = "honkai-star-rail", uid: int = 53,
+                     page_size: int = 50, home_type: int = 2) -> list[dict]:
+    """获取米游社官方账号主页（`home/<uid>?type=2`）的帖子列表。
+
+    官方账号会在主页发「【转发抽奖】X.Y「版本名」前瞻特别节目预告」，正文写明直播日期；
+    这类帖子不一定同步到 B站（2026-10-27 实测 4.7：B站只有「敬请关注4.7版本前瞻直播」，
+    没有日期）。`uid` 是主页地址里的号（星铁是 53），**不是**账号 uid。
+    返回 [{post_id, subject, created_at}]。
+    """
+    gids = GIDS_MAP.get(game_id, 2)
+    url = "https://bbs-api-static.miyoushe.com/apihub/wapi/webHome"
+    params = {"client_type": "4", "gids": str(gids), "uid": str(uid),
+              "type": str(home_type), "page_size": str(page_size)}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/99.0.4844.84 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://www.miyoushe.com/",
+        "x-rpc-client_type": "4",
+        "x-rpc-app_version": "2.102.0",
+    }
+    try:
+        r = requests.get(url, params=params, headers=headers, timeout=10)
+        data = r.json()
+        if data.get("retcode") != 0:
+            return []
+        posts = []
+        for item in (data.get("data") or {}).get("recommended_posts") or []:
+            post = item.get("post") or {}
             posts.append({
                 "post_id": str(post.get("post_id", "")),
                 "subject": post.get("subject", ""),

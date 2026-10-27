@@ -66,7 +66,8 @@ def sources_from(livestreams: list[dict], maintenance: dict | None,
                  game_name: str = "原神") -> dict:
     """构造「版本更新 / 前瞻直播」的权威值索引。
 
-    livestreams：bilibili.find_livestreams 输出（{version, name, date?, id}）
+    livestreams：bilibili.find_livestreams 输出（{version, name, date?, id}）；
+                 每条可带 `source`（星铁的官方账号预告帖会写「米游社官方账号」），缺省 B站
     maintenance：维护预告解析结果 {version, date, name?}，可缺
     game_name：标题里的游戏名。title 是 VALUE_FIELDS 之一，会被写回条目，
                所以这里拼出的标题必须与数据文件里的**逐字一致**。
@@ -81,15 +82,16 @@ def sources_from(livestreams: list[dict], maintenance: dict | None,
         v, name = ls.get("version"), ls.get("name")
         if not v or not name:
             continue
+        label = ls.get("source") or "B站前瞻公告"
         live = {"title": f"《{game_name}》{v} 版本「{name}」前瞻特别节目",
-                "source": "B站前瞻公告"}
+                "source": label}
         if ls.get("date"):
             live["start_date"] = ls["date"]
             live["end_date"] = ls["date"]
         src[("前瞻直播", "v", v)] = live
         src.setdefault(("版本更新", "v", v),
                        {"title": f"《{game_name}》{v} 版本「{name}」停服更新",
-                        "source": "B站前瞻公告"})
+                        "source": label})
 
     v = (maintenance or {}).get("version")
     if v:

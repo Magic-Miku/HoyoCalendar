@@ -553,3 +553,26 @@ def find_launches(items: list[dict]) -> list[dict]:
             r["id"] = d.get("id", "")
             out.append(r)
     return out
+
+
+# ─── 米游社官方账号：前瞻特别节目预告（转发抽奖帖）───────────
+#
+# 标题：`【转发抽奖】4.7「此刻，将群星付之一笑」前瞻特别节目预告`
+# 正文：`2026年10月30日19:30，锁定官方直播间，《阿哈之夜》等你参演！`
+# 同篇还写着抽奖时段（`2026年10月26日 - 2026年10月30日 18:00 活动期间转发本帖`），
+# 日期与直播日可能同一天，所以判据不能取「第一个日期」，要取**紧跟「直播」的那一处**。
+
+def is_livestream_notice(subject: str) -> bool:
+    return "前瞻特别节目预告" in (subject or "")
+
+
+def parse_livestream_notice(subject: str, text: str) -> dict | None:
+    """官方账号前瞻预告 → {version, name, date}；不是预告或没写日期则 None。"""
+    m = re.search(r"(\d+\.\d+)「([^」]+)」前瞻特别节目预告", subject or "")
+    if not m:
+        return None
+    d = re.search(r"(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日\s*\d{1,2}:\d{2}"
+                  r"[^。]{0,20}?直播", text or "")
+    if not d:
+        return None
+    return {"version": m[1], "name": m[2], "date": _iso(d[1], d[2], d[3])}

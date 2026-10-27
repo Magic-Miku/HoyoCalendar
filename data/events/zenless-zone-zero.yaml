@@ -505,8 +505,7 @@
   type: 常规活动
   start_date: '2026-10-28'
   end_date: '2026-11-15'
-  color: '#cce0f0'
-  pending: 总纲
+  color: '#f2b9e9'
 - id: zzz-常规-2026-11-先遣赏金区域巡防
   game: zenless-zone-zero
   title: 「先遣赏金-区域巡防」
