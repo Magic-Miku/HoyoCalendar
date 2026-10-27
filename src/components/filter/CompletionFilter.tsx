@@ -33,7 +33,7 @@ export function CompletionFilter({ selected, onChange }: CompletionFilterProps) 
           <button
             key={key}
             onClick={() => toggle(key)}
-            className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+            className="text-xs px-2.5 py-1 rounded-full border transition-colors max-md:min-h-9"
             style={{
               borderColor: active ? '#6366F1' : 'var(--border-color)',
               backgroundColor: active ? '#6366F1' : 'transparent',

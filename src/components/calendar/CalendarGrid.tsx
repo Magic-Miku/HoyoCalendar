@@ -4,12 +4,8 @@ import type { GameEvent } from '../../types/events'
 import { WEEKDAY_LABELS } from '../../lib/constants'
 import { computeEventSegments } from '../../lib/event-layout'
 
-const BAR_HEIGHT = 22
-const BAR_GAP = 3
-const BAR_LANE_H = BAR_HEIGHT + BAR_GAP // 25px per lane
-const DATE_LINE_H = 28 // 日期行高度
-const MIN_CELL_H = 56 // 无活动时的最小格高
-const BAR_TOP = DATE_LINE_H + 2 // 色条距顶部距离（日期下方2px）
+// 色条与日期行的几何放在 CSS 变量里（--cal-*，见 index.css）：
+// 桌面值等于原来的常量，手机端由媒体查询放大，便于点按。
 
 interface CalendarGridProps {
   weeks: CalendarDay[][]
@@ -34,13 +30,13 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
   )
 
   return (
-    <div className="flex-1 flex flex-col px-6 pb-6">
+    <div className="flex-1 flex flex-col px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:px-6 md:pb-6">
       {/* ===== 星期头 ===== */}
       <div className="grid grid-cols-7 mb-1">
         {WEEKDAY_LABELS.map((label, i) => (
           <div
             key={i}
-            className="text-center text-sm font-medium py-2"
+            className="text-center text-xs font-medium py-1 md:text-sm md:py-2"
             style={{ color: 'var(--text-secondary)' }}
           >
             {label}
@@ -56,10 +52,12 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
         {weeks.map((week, wi) => {
           const segs = weekSegments[wi]
           const maxLane = segs.length > 0 ? Math.max(...segs.map((s) => s.lane)) : 0
-          const barsAreaH = segs.length > 0 ? (maxLane + 1) * BAR_LANE_H + 4 : 0
+          const barsAreaH = segs.length > 0
+            ? `calc(${maxLane + 1} * var(--cal-bar-lane-height) + 4px)`
+            : undefined
           const rowMinH = segs.length > 0
-            ? BAR_TOP + barsAreaH + 8
-            : MIN_CELL_H
+            ? `calc(var(--cal-bar-top) + ${maxLane + 1} * var(--cal-bar-lane-height) + 8px)`
+            : 'var(--cal-min-cell-height)'
 
           return (
             <div
@@ -102,7 +100,7 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
               {segs.length > 0 && (
                 <div
                   className="absolute inset-x-0 z-10 pointer-events-none"
-                  style={{ top: BAR_TOP, height: barsAreaH }}
+                  style={{ top: 'var(--cal-bar-top)', height: barsAreaH }}
                 >
                   {segs.map((seg) => {
                     const leftPct = (seg.startCol / 7) * 100
@@ -117,12 +115,12 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
                     return (
                       <button
                         key={seg.eventId}
-                        className="absolute flex items-center px-1.5 overflow-hidden select-none pointer-events-auto cursor-pointer hover:brightness-95 transition-[filter]"
+                        className="absolute flex items-center px-1.5 max-md:px-1 overflow-hidden select-none pointer-events-auto cursor-pointer hover:brightness-95 transition-[filter]"
                         style={{
                           left: `${leftPct}%`,
                           width: `calc(${widthPct}% - 4px)`,
-                          top: seg.lane * BAR_LANE_H,
-                          height: BAR_HEIGHT,
+                          top: `calc(${seg.lane} * var(--cal-bar-lane-height))`,
+                          height: 'var(--cal-bar-height)',
                           borderRadius,
                           ...(seg.bgImage
                             ? {
@@ -136,6 +134,7 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
                               }),
                         }}
                         title={seg.title}
+                        aria-label={seg.title}
                         onClick={() => onSelectEvent?.(week[seg.startCol].date, seg.eventId)}
                       >
                         {seg.bgImage && (
@@ -159,7 +158,7 @@ export function CalendarGrid({ weeks, events, selectedDate, onSelectDate, onSele
               {/* ======== Layer 3: 日期数字 (z-20) — 顶部固定高度 ======== */}
               <div
                 className="grid grid-cols-7 absolute top-0 inset-x-0 z-20 pointer-events-none"
-                style={{ height: DATE_LINE_H }}
+                style={{ height: 'var(--cal-date-line-height)' }}
               >
                 {week.map((day) => (
                   <div key={day.date} className="p-1.5 border-r flex items-start">

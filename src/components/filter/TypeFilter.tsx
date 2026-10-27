@@ -35,7 +35,7 @@ export function TypeFilter({ availableTypes, state, onChange }: TypeFilterProps)
 
       <button
         onClick={clearAll}
-        className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+        className={`text-xs px-2.5 py-1 rounded-full border transition-colors max-md:min-h-9 ${
           !hasAny
             ? 'bg-gray-800 text-white border-gray-800 dark:bg-white dark:text-gray-800 dark:border-white'
             : 'border-gray-300 text-gray-500 hover:border-gray-400'
@@ -54,7 +54,7 @@ export function TypeFilter({ availableTypes, state, onChange }: TypeFilterProps)
           <button
             key={type}
             onClick={() => toggle(type)}
-            className="text-xs px-2 py-1 rounded-full border transition-colors"
+            className="text-xs px-2 py-1 rounded-full border transition-colors max-md:min-h-9"
             style={{
               borderColor: isInclude ? '#6366F1' : isExclude ? '#EF4444' : 'var(--border-color)',
               backgroundColor: isInclude ? '#6366F1' : isExclude ? '#FEE2E2' : 'transparent',
