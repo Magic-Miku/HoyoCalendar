@@ -210,11 +210,16 @@ def find_banner_announcements(posts: list[dict]) -> list[dict]:
     完整包含卡池名与 5 星全名（带属性），去尾部感叹号后直接作为标题。
     created_at 用于按版本节奏推断卡池阶段（上半/下半，见 inference.infer_banner_dates）。
     排除溯光祈愿 / 集录祈愿等特殊祈愿。
+
+    常规武器池固定叫「神铸赋形」，它是 `祈愿` 之外的第二个信号：7.1 下半起武器池标题
+    写成 `「神铸赋形」：「单手剑·苍耀」「长柄武器·香韵奏者」概率UP`，省掉了 `祈愿`
+    （2026-10-27 实测：只认 `祈愿` 会整条静默漏录）。
     """
     out = []
     for p in posts:
         s = p.get("subject", "")
-        if "祈愿" in s and "概率" in s and "溯光祈愿" not in s and "集录祈愿" not in s:
+        if "概率" in s and ("祈愿" in s or "神铸赋形" in s) \
+                and "溯光祈愿" not in s and "集录祈愿" not in s:
             out.append({
                 "title": s.rstrip("！!。"),
                 "created_at": p.get("created_at", 0),
