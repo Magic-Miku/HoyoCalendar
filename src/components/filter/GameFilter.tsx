@@ -33,14 +33,14 @@ export function GameFilter({ state, onChange }: GameFilterProps) {
   const hasAny = Object.keys(state).length > 0
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 max-md:flex-wrap">
       <span className="text-xs font-medium mr-1" style={{ color: 'var(--text-secondary)' }}>
         游戏
       </span>
 
       <button
         onClick={clearAll}
-        className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+        className={`text-xs px-2.5 py-1 rounded-full border transition-colors max-md:min-h-9 ${
           !hasAny
             ? 'bg-gray-800 text-white border-gray-800 dark:bg-white dark:text-gray-800 dark:border-white'
             : 'border-gray-300 text-gray-500 hover:border-gray-400'
@@ -61,7 +61,7 @@ export function GameFilter({ state, onChange }: GameFilterProps) {
           <button
             key={game}
             onClick={() => toggle(game)}
-            className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+            className="text-xs px-2.5 py-1 rounded-full border transition-colors max-md:min-h-9"
             style={{
               borderColor: isActive ? (isInclude ? meta.color : '#EF4444') : 'var(--border-color)',
               backgroundColor: isActive ? (isInclude ? meta.color : '#FEE2E2') : 'transparent',

@@ -8,7 +8,7 @@
   --color-hsr: #7B5EA7;
   --color-zzz: #00E5A0;
   --color-tears-of-themis: #D4929A;
-  --color-honkai3: #FF6B9D;
+  --color-petit-planet: #D99A2B;
 
   /* Event type colors */
   --type-version-main: #6366F1;    /* Indigo */
@@ -31,6 +31,13 @@
   --today-bg: #EFF6FF;
   --today-border: #3B82F6;
 
+  /* 日历几何（桌面值与原 JS 常量一致；手机在文件末尾的媒体查询里放大） */
+  --cal-bar-height: 22px;
+  --cal-bar-lane-height: 25px;   /* 色条 22 + 间隙 3 */
+  --cal-date-line-height: 28px;
+  --cal-min-cell-height: 56px;
+  --cal-bar-top: 30px;           /* 日期行 28 + 2；改日期行高度时同步改这里 */
+
   color-scheme: light;
 }
 
@@ -50,6 +57,11 @@
 }
 
 /* ===== Base styles ===== */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -57,8 +69,22 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* 手机：放大日历几何，色条更好点按（桌面值不变） */
+@media (max-width: 47.999rem) {
+  :root {
+    --cal-bar-height: 28px;
+    --cal-bar-lane-height: 31px;
+    --cal-date-line-height: 30px;
+    --cal-min-cell-height: 56px;
+    --cal-bar-top: 32px;
+  }
 }

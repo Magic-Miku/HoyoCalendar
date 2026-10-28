@@ -16,7 +16,7 @@ interface DayViewProps {
  */
 export function DayView({ date, events, highlightedEventId, isCompleted, onToggleComplete, onSelectEvent }: DayViewProps) {
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-4">
+    <div className="flex-1 overflow-y-auto px-3 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] overscroll-contain md:px-6 md:py-4">
       {/* 日期标题 */}
       <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
         {formatDayLabel(date)}
@@ -63,12 +63,14 @@ export function DayView({ date, events, highlightedEventId, isCompleted, onToggl
                   {onToggleComplete && (
                     <button
                       onClick={(e) => { e.stopPropagation(); onToggleComplete(event.id) }}
-                      className={`text-sm w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      className={`text-sm w-6 h-6 max-md:w-10 max-md:h-10 max-md:text-base rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                         isCompleted?.(event.id)
                           ? 'bg-green-500 border-green-500 text-white'
                           : 'border-gray-300 text-transparent hover:border-gray-400'
                       }`}
                       title={isCompleted?.(event.id) ? '标记为未完成' : '标记为完成'}
+                      aria-label={isCompleted?.(event.id) ? '标记为未完成' : '标记为完成'}
+                      aria-pressed={!!isCompleted?.(event.id)}
                     >
                       ✓
                     </button>

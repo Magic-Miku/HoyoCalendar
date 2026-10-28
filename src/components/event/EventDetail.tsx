@@ -1,5 +1,13 @@
+import { useEffect } from 'react'
 import type { GameEvent, EventTypeId } from '../../types/events'
 import { GAME_META, EVENT_TYPE_META } from '../../types/events'
+
+// 桌面：320px 内联侧栏；手机：底部抽屉（背板在 App 里）
+const PANEL_CLASS =
+  'w-80 border-l p-4 overflow-y-auto ' +
+  'max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-50 max-md:w-full ' +
+  'max-md:max-h-[85dvh] max-md:rounded-t-2xl max-md:border-l-0 max-md:border-t max-md:shadow-2xl max-md:overscroll-contain ' +
+  'max-md:pb-[calc(1rem+env(safe-area-inset-bottom))]'
 
 interface EventDetailProps {
   events: GameEvent[]
@@ -11,17 +19,31 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ events, date, highlightedEventId, isCompleted, onToggleComplete, onClose }: EventDetailProps) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
   if (events.length === 0) {
     return (
       <aside
-        className="w-80 border-l p-4 overflow-y-auto"
+        className={PANEL_CLASS}
+        aria-label={`${date} 活动详情`}
         style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-surface)' }}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
             {date}
           </h3>
-          <button onClick={onClose} className="text-sm" style={{ color: 'var(--text-muted)' }}>
+          <button
+            onClick={onClose}
+            aria-label="关闭详情"
+            className="text-sm max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center max-md:rounded-lg max-md:text-lg"
+            style={{ color: 'var(--text-muted)' }}
+          >
             ✕
           </button>
         </div>
@@ -34,14 +56,20 @@ export function EventDetail({ events, date, highlightedEventId, isCompleted, onT
 
   return (
     <aside
-      className="w-80 border-l p-4 overflow-y-auto"
+      className={PANEL_CLASS}
+      aria-label={`${date} 活动详情`}
       style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-surface)' }}
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
           {date}
         </h3>
-        <button onClick={onClose} className="text-sm hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
+        <button
+          onClick={onClose}
+          aria-label="关闭详情"
+          className="text-sm hover:opacity-70 max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center max-md:rounded-lg max-md:text-lg"
+          style={{ color: 'var(--text-muted)' }}
+        >
           ✕
         </button>
       </div>
@@ -75,12 +103,14 @@ export function EventDetail({ events, date, highlightedEventId, isCompleted, onT
                 {onToggleComplete && (
                   <button
                     onClick={(e) => { e.stopPropagation(); onToggleComplete(event.id) }}
-                    className={`text-sm w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                    className={`text-sm w-6 h-6 max-md:w-10 max-md:h-10 max-md:text-base rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                       isCompleted?.(event.id)
                         ? 'bg-green-500 border-green-500 text-white'
                         : 'border-gray-300 text-transparent hover:border-gray-400'
                     }`}
                     title={isCompleted?.(event.id) ? '标记为未完成' : '标记为完成'}
+                    aria-label={isCompleted?.(event.id) ? '标记为未完成' : '标记为完成'}
+                    aria-pressed={!!isCompleted?.(event.id)}
                   >
                     ✓
                   </button>

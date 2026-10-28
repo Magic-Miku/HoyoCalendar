@@ -19,7 +19,6 @@ GAME_FILES = {
     "honkai-star-rail": "honkai-star-rail.yaml",
     "zenless-zone-zero": "zenless-zone-zero.yaml",
     "tears-of-themis": "tears-of-themis.yaml",
-    "honkai-impact-3rd": "honkai-impact-3rd.yaml",
 }
 
 GAME_META = {
@@ -27,7 +26,6 @@ GAME_META = {
     "honkai-star-rail": {"name": "崩坏：星穹铁道", "color": "#7B5EA7"},
     "zenless-zone-zero": {"name": "绝区零", "color": "#00E5A0"},
     "tears-of-themis": {"name": "未定事件簿", "color": "#D4929A"},
-    "honkai-impact-3rd": {"name": "崩坏3", "color": "#FF6B9D"},
 }
 
 # 事件 id 前缀与米游社 source_url 路径。两者都是「按游戏」的，且各模块都要用，

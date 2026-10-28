@@ -30,23 +30,26 @@ export function Header({
   onToday,
 }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+    <header
+      className="flex flex-wrap items-center justify-between gap-y-2 border-b px-3 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))] md:flex-nowrap md:gap-y-0 md:px-6 md:pb-4 md:pt-4"
+      style={{ borderColor: 'var(--border-color)' }}
+    >
       {/* Left: Logo & Title + View Switcher */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎮</span>
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+      <div className="flex min-w-0 items-center gap-2 md:gap-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-xl md:text-2xl">🎮</span>
+          <h1 className="min-w-0 truncate text-base font-semibold md:text-xl" style={{ color: 'var(--text-primary)' }}>
             米游活动日历
           </h1>
         </div>
 
         {/* View Switcher */}
-        <div className="flex items-center rounded-lg border" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="flex shrink-0 items-center rounded-lg border" style={{ borderColor: 'var(--border-color)' }}>
           {VIEW_OPTIONS.map(({ mode, label }) => (
             <button
               key={mode}
               onClick={() => onChangeView(mode)}
-              className="px-3 py-1 text-sm font-medium transition-colors first:rounded-l-lg last:rounded-r-lg"
+              className="px-2 py-1 text-sm font-medium transition-colors first:rounded-l-lg last:rounded-r-lg max-md:min-h-9 md:px-3"
               style={{
                 backgroundColor: viewMode === mode ? 'var(--bg-hover)' : 'transparent',
                 color: viewMode === mode ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -58,28 +61,31 @@ export function Header({
         </div>
       </div>
 
-      {/* Center: Navigation */}
-      <div className="flex items-center gap-4">
+      {/* Center: Navigation（手机上落到第二行） */}
+      <div className="order-3 flex w-full items-center justify-center gap-2 md:order-none md:w-auto md:gap-4">
         <button
           onClick={onPrev}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center"
           aria-label="上一级"
         >
           ◀
         </button>
-        <h2 className="text-lg font-medium min-w-40 text-center" style={{ color: 'var(--text-primary)' }}>
+        <h2
+          className="min-w-0 flex-1 truncate text-center text-base font-medium md:min-w-40 md:flex-none md:text-lg"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {navLabel}
         </h2>
         <button
           onClick={onNext}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center"
           aria-label="下一级"
         >
           ▶
         </button>
         <button
           onClick={onToday}
-          className="px-3 py-1 text-sm rounded-md border transition-colors"
+          className="px-3 py-1 text-sm rounded-md border transition-colors max-md:inline-flex max-md:min-h-10 max-md:items-center max-md:justify-center"
           style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
         >
           今天
@@ -89,7 +95,7 @@ export function Header({
       {/* Right: Theme Toggle */}
       <button
         onClick={onToggleTheme}
-        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-lg"
+        className="shrink-0 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-lg max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center"
         aria-label="切换主题"
       >
         {theme === 'light' ? '🌙' : '☀️'}

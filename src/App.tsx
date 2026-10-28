@@ -40,12 +40,20 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth() + 1)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null)
+  // 详情面板独立开关：导航（切视图、翻周/翻月、今天）只移动 selectedDate，不弹面板
+  const [detailOpen, setDetailOpen] = useState(false)
 
   // ===== 筛选状态（三态: undefined=无, 'include'=包含, 'exclude'=排除）=====
   // 持久化到 localStorage，刷新后保留上次的筛选
   const [gameFilter, setGameFilter] = usePersistedState<Record<string, 'include' | 'exclude'>>('hoyo-calendar-game-filter', {})
   const [typeFilter, setTypeFilter] = usePersistedState<Record<string, 'include' | 'exclude'>>('hoyo-calendar-type-filter', {})
   const [completionFilter, setCompletionFilter] = usePersistedState<('incomplete' | 'complete')[]>('hoyo-calendar-completion-filter', [])
+  // 手机端筛选栏默认收起，避免占掉半个屏幕；桌面端始终展开（由 md: 样式还原）
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const activeFilterCount =
+    Object.keys(gameFilter).length +
+    Object.keys(typeFilter).length +
+    (completionFilter.length === 1 ? 1 : 0)
 
   // ===== 完成状态 =====
   const { isCompleted, toggleComplete } = useCompletedEvents()
@@ -197,12 +205,22 @@ export default function App() {
   const handleSelectDate = useCallback((date: string) => {
     setSelectedDate(date)
     setHighlightedEventId(null)
+    setDetailOpen(true)
   }, [])
 
   const handleSelectEvent = useCallback((date: string, eventId: string) => {
     setSelectedDate(date)
     setHighlightedEventId(eventId)
+    setDetailOpen(true)
   }, [])
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailOpen(false)
+    setHighlightedEventId(null)
+    // 月视图里选中态只服务于详情，关掉就一并清掉；
+    // 周视图的 selectedDate 还决定显示哪一周，不能清，否则会跳回本周
+    if (viewMode === 'month') setSelectedDate(null)
+  }, [viewMode])
 
   // ===== 错误状态 =====
   if (error) {
@@ -214,7 +232,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex flex-col h-dvh" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -228,17 +246,36 @@ export default function App() {
 
       {/* ===== 筛选栏 ===== */}
       <div
-        className="flex items-center gap-4 px-6 py-2 border-b flex-wrap"
+        className="border-b"
         style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-surface)' }}
       >
-        <GameFilter state={gameFilter} onChange={setGameFilter} />
-        <TypeFilter availableTypes={availableTypes} state={typeFilter} onChange={setTypeFilter} />
-        <CompletionFilter selected={completionFilter} onChange={setCompletionFilter} />
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((v) => !v)}
+          aria-expanded={filtersOpen}
+          aria-controls="filter-panel"
+          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium md:hidden"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          <span>筛选{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
+          <span aria-hidden="true">{filtersOpen ? '▲' : '▼'}</span>
+        </button>
+
+        <div
+          id="filter-panel"
+          className={`flex flex-col gap-2 px-3 pb-2 max-md:max-h-[45dvh] max-md:overflow-y-auto max-md:overscroll-contain md:flex-row md:flex-wrap md:items-center md:gap-4 md:px-6 md:py-2 ${
+            filtersOpen ? '' : 'max-md:hidden'
+          }`}
+        >
+          <GameFilter state={gameFilter} onChange={setGameFilter} />
+          <TypeFilter availableTypes={availableTypes} state={typeFilter} onChange={setTypeFilter} />
+          <CompletionFilter selected={completionFilter} onChange={setCompletionFilter} />
+        </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* 主内容区 */}
-        <div className="flex-1 flex flex-col overflow-auto">
+        <div className="flex-1 min-w-0 flex flex-col overflow-auto overscroll-contain">
           {loading ? (
             <div className="flex items-center justify-center flex-1" style={{ color: 'var(--text-muted)' }}>
               <p>加载中...</p>
@@ -263,16 +300,23 @@ export default function App() {
           )}
         </div>
 
-        {/* 活动详情侧栏（月/周视图时显示） */}
-        {viewMode !== 'day' && selectedDate && (
-          <EventDetail
-            events={selectedEvents}
-            date={selectedDate}
-            highlightedEventId={highlightedEventId}
-            isCompleted={isCompleted}
-            onToggleComplete={toggleComplete}
-            onClose={() => { setSelectedDate(null); setHighlightedEventId(null) }}
-          />
+        {/* 活动详情侧栏（月/周视图时显示；手机上为底部抽屉，配背板） */}
+        {viewMode !== 'day' && selectedDate && detailOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-black/40 touch-none md:hidden"
+              onClick={handleCloseDetail}
+              aria-hidden="true"
+            />
+            <EventDetail
+              events={selectedEvents}
+              date={selectedDate}
+              highlightedEventId={highlightedEventId}
+              isCompleted={isCompleted}
+              onToggleComplete={toggleComplete}
+              onClose={handleCloseDetail}
+            />
+          </>
         )}
       </div>
     </div>

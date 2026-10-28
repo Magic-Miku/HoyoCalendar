@@ -6,7 +6,7 @@ export const GameId = z.enum([
   'honkai-star-rail',
   'zenless-zone-zero',
   'tears-of-themis',
-  'honkai-impact-3rd',
+  'petit-planet',
 ])
 
 /** 活动类型 */
@@ -95,12 +95,12 @@ export const GAME_META: Record<Game, GameInfo> = {
     color: '#D4929A',
     accentColor: '#F0C4CA',
   },
-  'honkai-impact-3rd': {
-    id: 'honkai-impact-3rd',
-    name: '崩坏3',
-    nameEn: 'Honkai Impact 3rd',
-    color: '#FF6B9D',
-    accentColor: '#FFB3CC',
+  'petit-planet': {
+    id: 'petit-planet',
+    name: '星布谷地',
+    nameEn: 'Petit Planet',
+    color: '#D99A2B',
+    accentColor: '#F7C948',
   },
 }
 
