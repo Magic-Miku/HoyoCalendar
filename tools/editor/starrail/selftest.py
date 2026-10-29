@@ -72,9 +72,18 @@ def test_version_notes():
     d46 = load("hsr46_version_notes")
     n46 = parse.parse_version_notes(d46["text"], d46["subject"])
     check("4.6 版本号", n46["version"], "4.6")
-    # 4.6 起公告标题只写「4.6版本更新说明」，不带版本名 —— 条目名由更新预告那一路补
-    # （calibrate，见 rules.VERSION_PLACEHOLDER_TITLE）
-    check("4.6 标题里没有版本名", n46["name"], None)
+    # 4.6 起公告标题只写「4.6版本更新说明」，不带版本名；名字在正文首句
+    # 「欢迎来到4.6版本「月升之前，与兽共舞」！」里（2026-10-29 修，见 PLAN.md §4）
+    check("4.6 版本名（正文兜底）", n46["name"], "月升之前，与兽共舞")
+    # 正文里的版本号与标题不符时不认，免得把别的版本的名字贴上来
+    check("版本号不符不兜底",
+          parse.parse_version_notes(d46["text"], "4.7版本更新说明")["name"], None)
+    check("名兜底：更新预告优先",
+          pipeline._version_name_fallback("4.7", {"version": "4.7", "name": "预告名"},
+                                          [{"version": "4.7", "name": "前瞻名"}]), "预告名")
+    check("名兜底：版本号不同不用",
+          pipeline._version_name_fallback("4.6", {"version": "4.7", "name": "x"},
+                                          [{"version": "4.7", "name": "y"}]), None)
     check("4.6 本版开始", n46["start_date"], "2026-09-28")
     check("4.6 推得下版本日期", n46["next_version_date"], "2026-11-11")
     # 4.6 的「■玩法」段同时带来两个新形状：①说明句里出现带 `•`、不带日期的光提名

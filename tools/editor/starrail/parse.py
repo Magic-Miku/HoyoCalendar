@@ -116,6 +116,12 @@ def parse_version_notes(text: str, subject: str) -> dict | None:
     m2 = re.search(r"版本「([^」]+)」版本更新说明", subject or "")
     if m2:
         name = m2.group(1)
+    else:
+        # 4.6 起标题只剩「4.6版本更新说明」，版本名挪到正文首句
+        # 「欢迎来到4.6版本「月升之前，与兽共舞」！」——版本号须与标题一致才算
+        m3 = re.search(r"欢迎来到\s*(\d+\.\d+)版本[「『]([^」』]+)[」』]", text or "")
+        if m3 and m3.group(1) == version:
+            name = m3.group(2)
 
     result: dict = {"version": version, "name": name}
     seg = RE_VERSION_DURATION.search(text or "")
