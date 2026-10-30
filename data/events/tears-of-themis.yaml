@@ -367,3 +367,14 @@
   end_date: '2026-11-05'
   color: '#e4d4c7'
   source_url: https://www.miyoushe.com/wd/article/79140251
+- id: tea-卡池-2026-10-左然风烛引归限时
+  game: tears-of-themis
+  title: 左然SSR【风烛引归】限时复刻
+  type: 卡池
+  start_date: '2026-10-30'
+  end_date: '2026-11-13'
+  color: '#f0cabb'
+  source_url: https://www.miyoushe.com/wd/article/79191336
+  tags:
+  - 左然
+  - SSR

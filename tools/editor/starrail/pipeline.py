@@ -204,6 +204,14 @@ def _collect_notes(posts) -> tuple[dict | None, str | None]:
     return None, None
 
 
+def _version_name_fallback(version, preview, lives) -> str | None:
+    """版本更新说明没解出版本名时，借更新预告 / 前瞻同一个版本的版本名。"""
+    for src in (preview, *(lives or [])):
+        if src and src.get("version") == version and src.get("name"):
+            return src["name"]
+    return None
+
+
 def _build_version_events(notes, preview, launches) -> list[dict]:
     """版本更新条目：本版 + 下版。
 
@@ -476,9 +484,6 @@ def run():
     # ① 版本更新说明（总纲）：只读当前版本那一份。版本周期表不在这里出（见 ④），
     #    所以窗口里旧版本的说明不必再读
     notes, notes_text = _collect_notes(posts)
-    if notes:
-        print(f"== 版本更新说明 == {notes['version']}版本「{notes.get('name') or '?'}」"
-              f" → {notes.get('start_date')} ~ 下版本 {notes.get('next_version_date')}")
 
     # ② 更新预告（T−2，版本更新日最权威的来源）
     preview = None
@@ -497,6 +502,14 @@ def run():
     known = {l["version"] for l in lives}
     lives += [l for l in _official_livestreams() if l["version"] not in known]
     launches = parse.find_launches(dyn)
+
+    # 日志与版本更新条目共用 notes：正文也解不出版本名时，借更新预告 / 前瞻补齐
+    # （4.6 起「版本更新说明」标题不带版本名，见 parse_version_notes）
+    if notes and not notes.get("name"):
+        notes["name"] = _version_name_fallback(notes["version"], preview, lives)
+    if notes:
+        print(f"== 版本更新说明 == {notes['version']}版本「{notes.get('name') or '?'}」"
+              f" → {notes.get('start_date')} ~ 下版本 {notes.get('next_version_date')}")
 
     # ④ 版本周期表：由**已确认的版本更新条目**推（数据文件 + 本轮候选，见 _version_table）。
     #    必须排在活动之前——活动里的「N.N版本期间 / N.N版本结束前」全靠它换算成日期。
