@@ -1,12 +1,15 @@
 name: sync-upstream
 
+# 每 6 小时同步一次上游（UTC 01/07/13/19 点 = 北京 09/15/21/03 点）
+# 上游活动数据几乎每天更新，原来每天一次最坏会滞后近 24 小时。
 on:
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: sync-upstream
@@ -15,17 +18,134 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    env:
+      NOTIFY_WEBHOOK: ${{ secrets.NOTIFY_WEBHOOK }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: 合并上游
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # 只合并，不立即推送：门禁全部通过后才 push，坏数据/坏代码不会进 Pages。
+      # fork 自有改动只放在 .github/ 与 scripts/，降低与上游冲突的概率。
+      - name: 合并上游（先不推送）
+        id: merge
         run: |
+          set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/autummu2/HoyoCalendar.git
           git fetch upstream main
-          git merge upstream/main --no-edit
-          git push origin main
+          before=$(git rev-parse HEAD)
+          if ! git merge upstream/main --no-edit; then
+            git merge --abort || true
+            echo "::error::与 upstream/main 合并冲突，需要人工处理（常见于上游改动了 fork 也改过的文件）"
+            exit 1
+          fi
+          after=$(git rev-parse HEAD)
+          if [ "$before" = "$after" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "上游无新提交，跳过门禁与推送。"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "上游有新提交：$before → $after"
+          fi
+
+      - name: 安装依赖
+        if: steps.merge.outputs.changed == 'true'
+        run: npm ci --no-audit --no-fund
+
+      # 关键门禁：data-loader 的 safeParse 失败会静默丢掉整个游戏的活动，
+      # 而 npm run build 只在运行时校验 YAML，拦不住坏数据。
+      - name: 校验活动数据
+        if: steps.merge.outputs.changed == 'true'
+        run: node scripts/validate-data.mjs
+
+      # 同步产生的 push 使用 GITHUB_TOKEN，按 GitHub 设计不会再触发 ci.yml，
+      # 所以 lint / test / build 必须在这里显式跑一遍。
+      - name: lint / test / build 门禁
+        if: steps.merge.outputs.changed == 'true'
+        run: |
+          npm run lint
+          npm test
+          npm run build
+
+      - name: 推送到 fork（触发 Cloudflare Pages 部署）
+        if: steps.merge.outputs.changed == 'true'
+        run: git push origin main
+
+      - name: 失败告警（自动开 / 更新 Issue）
+        if: failure()
+        continue-on-error: true   # 仓库若未启用 Issues，不要让告警本身掩盖原始失败
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[镜像] 上游同步失败';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              '上游同步或门禁未通过，镜像可能停留在旧数据。',
+              '',
+              `- 运行记录：${runUrl}`,
+              `- 触发方式：${context.eventName}`,
+              `- 时间：${new Date().toISOString()}`,
+              '',
+              '常见原因：与 upstream/main 合并冲突，或 lint / test / build / 数据校验失败。',
+              '处理完后重新运行本 workflow 即可自动关闭此 Issue。',
+            ].join('\n');
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const existing = issues.find((i) => i.title === title && !i.pull_request);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo, title, body,
+              });
+            }
+
+      - name: 失败告警（可选 webhook，兼容 Bark 格式）
+        if: failure() && env.NOTIFY_WEBHOOK != ''
+        continue-on-error: true
+        run: |
+          jq -n \
+            --arg title "HoyoCalendar 镜像同步失败" \
+            --arg body "检查 GitHub Actions 运行记录" \
+            --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            '{title:$title, body:$body, url:$url}' \
+          | curl -sS -X POST -H 'Content-Type: application/json' -d @- "$NOTIFY_WEBHOOK"
+
+      - name: 同步恢复后自动关闭告警 Issue
+        if: success()
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[镜像] 上游同步失败';
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            for (const i of issues.filter((x) => x.title === title && !x.pull_request)) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: i.number, body: '上游同步已恢复正常，自动关闭。',
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: i.number, state: 'closed',
+              });
+            }
